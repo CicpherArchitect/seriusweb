@@ -75,19 +75,43 @@ npm install
 
 3. Create a `.env` file in the root directory:
 ```env
+# Server Configuration
 PORT=3000
-JWT_SECRET=your-secret-key
 NODE_ENV=development
 
-# S3 Configuration
+# Security
+JWT_SECRET=your-secure-jwt-secret-key
+
+# S3 Storage Configuration
 S3_ENDPOINT=s3.wasabisys.com
 S3_REGION=us-east-1
 S3_ACCESS_KEY=your-wasabi-access-key
 S3_SECRET_KEY=your-wasabi-secret-key
 S3_BUCKET=serius-evidence-storage
 
-# Audit Log Configuration
+# Audit Configuration
 AUDIT_LOG_RETENTION_DAYS=365
+
+# Email Notifications (SendGrid)
+SENDGRID_API_KEY=your-sendgrid-api-key
+
+# SMS Notifications (Twilio)
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_PHONE_NUMBER=your-twilio-phone-number
+
+# Administrator Notifications
+ADMIN_EMAILS=admin1@example.com,admin2@example.com
+ADMIN_PHONES=+1234567890,+0987654321
+
+# Blockchain Configuration (Ethereum)
+ETHEREUM_NODE_URL=https://mainnet.infura.io/v3/your-project-id
+ETHEREUM_PRIVATE_KEY=your-ethereum-private-key
+EVIDENCE_CONTRACT_ADDRESS=0x1234567890abcdef1234567890abcdef12345678
+
+# SIEM Integration (Splunk)
+SPLUNK_TOKEN=your-splunk-token
+SPLUNK_URL=https://your-splunk-instance:8088
 ```
 
 4. Initialize the database:
@@ -163,4 +187,4 @@ For support, email support@serius.io or join our Slack community.
 
 ---
 
-Made with ❤️ by Serious Security Inc.# seriusweb
+Made with ❤️ by Serious Security Inc.
