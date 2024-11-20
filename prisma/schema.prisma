@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  name          String
+  password      String
+  role          String
+  apiKey        String?    @unique
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  incidents     Incident[] @relation("AssignedTo")
+  createdIncidents Incident[] @relation("CreatedBy")
+  evidences     Evidence[] @relation("UploadedBy")
+  auditLogs     AuditLog[] @relation("UserAuditLogs")
+}
+
+model Incident {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  severity    String
+  status      String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  assignedTo  User?      @relation("AssignedTo", fields: [userId], references: [id])
+  userId      String?
+  createdBy   User       @relation("CreatedBy", fields: [createdById], references: [id])
+  createdById String
+  tags        String?
+  evidences   Evidence[]
+  auditLogs   AuditLog[] @relation("IncidentAuditLogs")
+}
+
+model Evidence {
+  id          String   @id @default(uuid())
+  filename    String
+  fileType    String
+  fileSize    Int
+  hash        String
+  s3Key       String   @unique
+  uploadedAt  DateTime @default(now())
+  uploadedBy  User     @relation("UploadedBy", fields: [userId], references: [id])
+  userId      String
+  incident    Incident @relation(fields: [incidentId], references: [id])
+  incidentId  String
+  metadata    String?
+  auditLogs   AuditLog[] @relation("EvidenceAuditLogs")
+}
+
+model AuditLog {
+  id          String    @id @default(uuid())
+  timestamp   DateTime  @default(now())
+  action      String
+  entityType  String
+  entityId    String
+  userId      String
+  user        User      @relation("UserAuditLogs", fields: [userId], references: [id])
+  details     String
+  ipAddress   String
+  userAgent   String
+  
+  incident    Incident? @relation("IncidentAuditLogs", fields: [incidentId], references: [id])
+  incidentId  String?
+  evidence    Evidence? @relation("EvidenceAuditLogs", fields: [evidenceId], references: [id])
+  evidenceId  String?
+}
