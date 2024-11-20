@@ -1,9 +1,14 @@
 import { Handler } from '@netlify/functions';
-import { Server } from 'socket.io';
 import { randomUUID } from 'crypto';
 
-interface ScanRequest {
-  deviceIds: string[];
+interface Device {
+  id: string;
+  ip: string;
+  mac: string;
+  hostname: string;
+  status: 'online' | 'offline';
+  type: string;
+  lastSeen: string;
 }
 
 interface ScanStatus {
@@ -13,36 +18,42 @@ interface ScanStatus {
   findings: string[];
 }
 
-const io = new Server();
-
-const simulateScan = async (deviceId: string) => {
-  const status: ScanStatus = {
-    deviceId,
-    status: 'scanning',
-    progress: 0,
-    findings: []
-  };
-
-  // Simulate scan progress
-  for (let i = 0; i <= 100; i += 10) {
-    status.progress = i;
-
-    if (i === 30) {
-      status.findings.push('Discovered open ports: 80, 443, 22');
-    }
-    if (i === 60) {
-      status.findings.push('Detected outdated software versions');
-    }
-    if (i === 90) {
-      status.findings.push('Found suspicious network traffic patterns');
-    }
-
-    io.emit('scanUpdate', status);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+// Mock devices for demonstration
+const mockDevices: Device[] = [
+  {
+    id: randomUUID(),
+    ip: '192.168.1.100',
+    mac: '00:1A:2B:3C:4D:5E',
+    hostname: 'workstation-1',
+    status: 'online',
+    type: 'workstation',
+    lastSeen: new Date().toISOString()
+  },
+  {
+    id: randomUUID(),
+    ip: '192.168.1.101',
+    mac: '00:1A:2B:3C:4D:5F',
+    hostname: 'server-1',
+    status: 'online',
+    type: 'server',
+    lastSeen: new Date().toISOString()
   }
+];
 
-  status.status = 'completed';
-  io.emit('scanUpdate', status);
+const simulateScan = async (deviceId: string): Promise<ScanStatus> => {
+  // Simulate scan progress
+  await new Promise(resolve => setTimeout(resolve, 2000));
+
+  return {
+    deviceId,
+    status: 'completed',
+    progress: 100,
+    findings: [
+      'Discovered open ports: 80, 443, 22',
+      'Detected outdated software versions',
+      'Found suspicious network traffic patterns'
+    ]
+  };
 };
 
 export const handler: Handler = async (event) => {
@@ -54,21 +65,22 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const { deviceIds } = JSON.parse(event.body || '{}') as ScanRequest;
-
+    const { deviceIds } = JSON.parse(event.body || '{}');
+    
     // Start scans for each device
-    deviceIds.forEach(deviceId => {
-      simulateScan(deviceId);
-    });
+    const scanPromises = deviceIds.map(simulateScan);
+    const results = await Promise.all(scanPromises);
 
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: 'Scan initiated',
-        scanId: randomUUID()
+        message: 'Scan completed',
+        scanId: randomUUID(),
+        results
       })
     };
   } catch (error) {
+    console.error('Scan error:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({
@@ -76,4 +88,4 @@ export const handler: Handler = async (event) => {
       })
     };
   }
-};
+}
