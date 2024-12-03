@@ -4,8 +4,10 @@
   functions = "netlify/functions"
 
 [dev]
-  command = "npm run dev"
-  port = 3000
+  targetPort = 5173
+  port = 8888
+  framework = "#custom"
+  autoLaunch = true
 
 [[redirects]]
   from = "/api/*"
@@ -19,4 +21,8 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@tensorflow/tfjs-node"]
+  external_node_modules = ["bcryptjs", "jsonwebtoken"]
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"

@@ -1,9 +1,17 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Menu, X } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   return (
     <nav className="bg-indigo-900">
@@ -24,12 +32,23 @@ const Navbar = () => {
               <Link to="/features" className="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                 Features
               </Link>
-              <Link to="/pricing" className="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                Pricing
+              <Link to="/demo" className="text-indigo-100 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                Demo
               </Link>
-              <Link to="/login" className="bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-400">
-                Sign In
-              </Link>
+              {user ? (
+                <>
+                  <button
+                    onClick={handleLogout}
+                    className="bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-400"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link to="/login" className="bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-400">
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
 
@@ -53,12 +72,21 @@ const Navbar = () => {
             <Link to="/features" className="text-indigo-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
               Features
             </Link>
-            <Link to="/pricing" className="text-indigo-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
-              Pricing
+            <Link to="/demo" className="text-indigo-100 hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+              Demo
             </Link>
-            <Link to="/login" className="bg-indigo-500 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-400">
-              Sign In
-            </Link>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="w-full text-left bg-indigo-500 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-400"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <Link to="/login" className="bg-indigo-500 text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-indigo-400">
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
